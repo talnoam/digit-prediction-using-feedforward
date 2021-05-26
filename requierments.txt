@@ -1,0 +1,4 @@
+flask
+pandas
+tqdm
+scipy==1.2.0
