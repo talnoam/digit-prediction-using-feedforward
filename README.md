@@ -10,6 +10,6 @@ open the terminal in the project's main folder and run the command:
 
 python -m flask run
 
-Enter localhost from internet browser in: http://0.0.0.0:5000/
+Enter localhost from internet browser in: http://127.0.0.1:5000/
 
 Enjoy!

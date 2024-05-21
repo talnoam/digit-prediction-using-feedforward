@@ -230,6 +230,3 @@ def parseImage(imgData):
     imgstr = re.search(b'base64,(.*)', imgData).group(1)
     with open('output.png','wb') as output:
         output.write(base64.standard_b64decode(imgstr))
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
