@@ -1,11 +1,29 @@
 from flask import Flask, render_template, request
-from scipy.misc import imsave,imread, imresize
 from scipy.stats import truncnorm
 import numpy as np
 import tqdm
 import base64
 import re
 import codecs, json 
+
+import imageio
+from PIL import Image
+
+def imread(filename, mode=None):
+    if mode == 'L':
+        img = Image.open(filename).convert('L')
+        return np.array(img)
+    else:
+        return imageio.imread(filename)
+
+# Replace imsave with imageio.imwrite
+def imsave(filename, arr):
+    imageio.imwrite(filename, arr)
+
+# Replace imresize with PIL's resize method
+def imresize(arr, size):
+    img = Image.fromarray(arr)
+    return img.resize(size, Image.ANTIALIAS)
 
 @np.vectorize
 def sigmoid(x):
@@ -180,13 +198,20 @@ def predict():
 
     # read parsed image back in 8-bit, black and white mode (L)
     x = imread('output.png', mode='L')
+        
     x = np.invert(x)
     image_size = 28 # width and length
-    x = imresize(x,(image_size,image_size))
+
+    # Resize the image
+    x_resized = imresize(x, (image_size, image_size))
+
+    # Convert the resized image to a NumPy array if not already
+    if not isinstance(x_resized, np.ndarray):
+        x_resized = np.array(x_resized)
 
     # reshape image data for use in neural network
     image_pixels = image_size * image_size
-    image_matrix = x.reshape(image_pixels)
+    image_matrix = x_resized.reshape(image_pixels)
     image_matrix = image_matrix.tolist()
 
     # Normalize data
@@ -205,3 +230,6 @@ def parseImage(imgData):
     imgstr = re.search(b'base64,(.*)', imgData).group(1)
     with open('output.png','wb') as output:
         output.write(base64.standard_b64decode(imgstr))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
